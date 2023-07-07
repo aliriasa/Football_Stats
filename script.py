@@ -1,7 +1,7 @@
 #python -m streamlit run script.py
 import pandas as pd
 import streamlit as st
-import pandas as pd
+import numpy as np
 
 
 def main():
