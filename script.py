@@ -1,9 +1,13 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import streamlit as st
+import pandas as pd
+
 #python -m streamlit run script.py
 import pandas as pd
 import streamlit as st
 import numpy as np
-
-
 def main():
     # Load the dataframe
     st.set_page_config(
