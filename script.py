@@ -45,11 +45,11 @@ def sidebar_filters(df):
     selected_player_df = None
 
     # Add the right sidebar for player selection
-    st.sidebar.title('Player Selection')
+    st.sidebar.title('Selección de Jugador')
     player_names = df['Nombre'].unique()
-    selected_player = st.sidebar.selectbox('Select Player', ['All'] + list(player_names))
+    selected_player = st.sidebar.selectbox('Seleccionar Jugador', ['Todos'] + list(player_names))
 
-    if selected_player != 'All':
+    if selected_player != 'Todos':
         # Filter for the selected player
         data_columns = filtered_df.select_dtypes(include=[np.number]).columns.tolist()
         data_columns.remove('Valor de mercado')
@@ -58,18 +58,18 @@ def sidebar_filters(df):
 
         model_player_data = filtered_df.loc[filtered_df['Nombre'] == selected_player, data_columns].values[0]
 
-        filtered_df['Similarity'] = filtered_df[data_columns].apply(
+        filtered_df['Similitud'] = filtered_df[data_columns].apply(
             lambda row: apply_similarity_formula(model_player_data, row[data_columns].values),
             axis=1
         )
 
         # Sort the DataFrame by similarity score
         selected_player_df = filtered_df.loc[filtered_df['Nombre'] == selected_player]
-        filtered_df = filtered_df.sort_values(by='Similarity', ascending=False).loc[filtered_df['Nombre'] != selected_player]
+        filtered_df = filtered_df.sort_values(by='Similitud', ascending=False).loc[filtered_df['Nombre'] != selected_player]
         similarity = True
 
 
-    st.sidebar.title('Data Filters')
+    st.sidebar.title('Filtros de Datos')
 
     # Get the categorical column names
     categorical_columns = ['Liga', 'Equipo', 'Posicion', 'Pie', 'Lesionado']
@@ -78,19 +78,19 @@ def sidebar_filters(df):
     numerical_columns = df.select_dtypes(include=[float, int]).columns.tolist()
 
     # Add filter options for categorical and numerical columns
-    column_filters = st.sidebar.multiselect('Columns', categorical_columns + numerical_columns)
+    column_filters = st.sidebar.multiselect('Filtros Disponibles', categorical_columns + numerical_columns)
 
     for column in column_filters:
         if column in categorical_columns:
-            st.sidebar.markdown(f"**Filtering by {column}**")
+            st.sidebar.markdown(f"**Filtrar por {column}**")
             # Get unique values for the column, filtered based on previous filters
             column_values = filtered_df[column].loc[filtered_df[column].notnull()]
             unique_values = column_values.unique()
             # Display all possible values as a dropdown menu
-            all_option = 'All' in column_values
+            all_option = 'Todos' in column_values
             if all_option:
-                selected_values = st.sidebar.multiselect(column, unique_values, default='All')
-                if 'All' in selected_values:
+                selected_values = st.sidebar.multiselect(column, unique_values, default='Todos')
+                if 'Todos' in selected_values:
                     filtered_df = filtered_df.drop(columns=[column])
             else:
                 selected_values = st.sidebar.multiselect(column, unique_values)
@@ -98,9 +98,9 @@ def sidebar_filters(df):
                 filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
         else:
             # Apply the filters based on the selected numerical column
-            st.sidebar.markdown(f"**Filtering by {column}**")
-            min_value = st.sidebar.number_input(f'Minimum Value for {column}', value=filtered_df[column].min())
-            max_value = st.sidebar.number_input(f'Maximum Value for {column}', value=filtered_df[column].max())
+            st.sidebar.markdown(f"**Filtrar por {column}**")
+            min_value = st.sidebar.number_input(f'Valor mínimo de {column}', value=filtered_df[column].min())
+            max_value = st.sidebar.number_input(f'Valor máximo de {column}', value=filtered_df[column].max())
             filtered_df = filtered_df[(filtered_df[column] >= min_value) & (filtered_df[column] <= max_value)]
 
     # Return the filtered dataframe
@@ -116,19 +116,19 @@ def format_dataframe(df, similarity, selected_player_df):
 
     if similarity:
         selected_player = np.array(selected_player_df['Nombre'])[0]
-        columns_to_display.append('Similarity')
+        columns_to_display.append('Similitud')
 
     # Create an expander for displaying additional columns
-    with st.expander("More Columns", expanded=False):
+    with st.expander("Más información del jugador", expanded=False):
         # Get the list of remaining columns
         remaining_columns = [col for col in formatted_df.columns if col not in columns_to_display]
 
         # Add checkbox for each remaining column
-        selected_columns = st.multiselect("Select columns to display", remaining_columns, default=[])
+        selected_columns = st.multiselect("Seleccionar columnas para mostrar", remaining_columns, default=[])
         columns_to_display.extend(selected_columns)
 
         # Add a dropdown menu to select a column for sorting
-        sort_columns = st.multiselect("Select columns to sort", columns_to_display, default=['Valor de mercado'])
+        sort_columns = st.multiselect("Seleccionar columnas para ordenar", columns_to_display, default=['Valor de mercado'])
 
     # Filter the dataframe based on the selected columns
     formatted_df = formatted_df[columns_to_display]
