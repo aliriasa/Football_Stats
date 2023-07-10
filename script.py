@@ -8,7 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 def main():
     # Load the dataframe
     st.set_page_config(
-        page_title="Football Statistics",
+        page_title="Estadísticas de Fútbol",
         page_icon="⚽",
         layout="wide",
         initial_sidebar_state="expanded",
