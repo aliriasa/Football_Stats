@@ -92,6 +92,9 @@ def sidebar_filters(df):
     # Add filter options for categorical and numerical columns
     column_filters = st.sidebar.multiselect('Filtros Disponibles', categorical_columns + numerical_columns)
 
+    if similarity:
+        column_filters.append('Posicion')
+
     for column in column_filters:
         if column in categorical_columns:
             st.sidebar.markdown(f"**Filtrar por {column}**")
