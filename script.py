@@ -27,7 +27,7 @@ def load_dataframe():
     df = pd.read_csv('transfer_stats.csv')
     return df
 
-def apply_similarity_formula(model_player_data, row, mean_data, std_data):
+def apply_similarity_formula(model_player_data, row, mean_data, std_data, position):
     valid_indices = ~np.isnan(model_player_data)
     if len(valid_indices) == 0:
         return 0
@@ -64,8 +64,9 @@ def sidebar_filters(df):
         data_columns.remove('Edad')
         data_columns.remove('Altura')
 
+        selected_player_position = filtered_df.loc[filtered_df['Nombre'] == selected_player, ['Posicion']].values[0]
         model_player_data = filtered_df.loc[filtered_df['Nombre'] == selected_player, data_columns].values[0]
-
+        
         mean_data = np.array(filtered_df[data_columns].mean())
         std_data = np.array(filtered_df[data_columns].std())
 
@@ -107,12 +108,19 @@ def sidebar_filters(df):
                 selected_values = st.sidebar.multiselect(column, unique_values)
                 # Filter the dataframe based on the selected values
                 filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
+            
+            # Check if similarity is True and selected_player_position is 'Portero'
+            if similarity and selected_player_position == 'Portero' and column == 'Position':
+                selected_values = ['Portero']
+                filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
+            
         else:
             # Apply the filters based on the selected numerical column
             st.sidebar.markdown(f"**Filtrar por {column}**")
             min_value = st.sidebar.number_input(f'Valor mínimo de {column}', value=filtered_df[column].min())
             max_value = st.sidebar.number_input(f'Valor máximo de {column}', value=filtered_df[column].max())
             filtered_df = filtered_df[(filtered_df[column] >= min_value) & (filtered_df[column] <= max_value)]
+
 
     # Return the filtered dataframe
     return filtered_df, similarity, selected_player_df
