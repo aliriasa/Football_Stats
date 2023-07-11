@@ -113,8 +113,8 @@ def sidebar_filters(df):
                 filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
             
             # Check if similarity is True and selected_player_position is 'Portero'
-            if similarity and selected_player_position == 'Portero' and column == 'Position':
-                selected_values = ['Portero']
+            if similarity and selected_player_position == 'Portero' and column == 'Posicion':
+                selected_values = st.sidebar.multiselect(column, unique_values, default='Posicion')
                 filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
             
         else:
