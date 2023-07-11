@@ -1,5 +1,6 @@
 
 #python -m streamlit run script.py
+from email.policy import default
 import pandas as pd
 import streamlit as st
 import numpy as np
@@ -90,10 +91,10 @@ def sidebar_filters(df):
     numerical_columns = df.select_dtypes(include=[float, int]).columns.tolist()
 
     # Add filter options for categorical and numerical columns
-    column_filters = st.sidebar.multiselect('Filtros Disponibles', categorical_columns + numerical_columns)
-
-    if similarity:
-        column_filters.append('Posicion')
+    if similarity and selected_player_position == 'Portero':
+        column_filters = st.sidebar.multiselect('Filtros Disponibles', categorical_columns + numerical_columns, default='Posicion')
+    else:
+        column_filters = st.sidebar.multiselect('Filtros Disponibles', categorical_columns + numerical_columns)
 
     for column in column_filters:
         if column in categorical_columns:
@@ -108,14 +109,14 @@ def sidebar_filters(df):
                 if 'Todos' in selected_values:
                     filtered_df = filtered_df.drop(columns=[column])
             else:
-                selected_values = st.sidebar.multiselect(column, unique_values)
-                # Filter the dataframe based on the selected values
-                filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
-            
-            # Check if similarity is True and selected_player_position is 'Portero'
-            if similarity and selected_player_position == 'Portero' and column == 'Posicion':
-                selected_values = st.sidebar.multiselect(column, unique_values, default='Portero')
-                filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
+                # Check if similarity is True and selected_player_position is 'Portero'
+                if similarity and selected_player_position == 'Portero' and column == 'Posicion':
+                    selected_values = st.sidebar.multiselect(column, unique_values, default='Portero')
+                    filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
+                else:
+                    selected_values = st.sidebar.multiselect(column, unique_values)
+                    # Filter the dataframe based on the selected values
+                    filtered_df = filtered_df[filtered_df[column].isin(selected_values)]
             
         else:
             # Apply the filters based on the selected numerical column
