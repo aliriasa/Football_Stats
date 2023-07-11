@@ -27,7 +27,7 @@ def load_dataframe():
     df = pd.read_csv('transfer_stats.csv')
     return df
 
-def apply_similarity_formula(model_player_data, row, mean_data, std_data, position):
+def apply_similarity_formula(model_player_data, row, mean_data, std_data):
     valid_indices = ~np.isnan(model_player_data)
     if len(valid_indices) == 0:
         return 0
