@@ -27,16 +27,24 @@ def load_dataframe():
     df = pd.read_csv('transfer_stats.csv')
     return df
 
-def apply_similarity_formula(model_player_data, row):
+def apply_similarity_formula(model_player_data, row, mean_data, std_data):
     valid_indices = ~np.isnan(model_player_data)
     if len(valid_indices) == 0:
         return 0
     else:
-        arr1 = np.array(model_player_data[valid_indices]).reshape(1, -1)
-        arr2 = np.array(np.nan_to_num(row[valid_indices], nan=0) ).reshape(1, -1)
-        
+        # Z-score normalization for model_player_data using mean_data and std_data
+        model_player_data = (model_player_data[valid_indices] - mean_data[valid_indices]) / std_data[valid_indices]
+
+        arr1 = np.array(model_player_data).reshape(1, -1)
+
+        # Z-score normalization for row data using mean_data and std_data
+        row_data = (row[valid_indices] - mean_data[valid_indices]) / std_data[valid_indices]
+
+        arr2 = np.array(np.nan_to_num(row_data, nan=0)).reshape(1, -1)
+
         similarity = cosine_similarity(arr1, arr2)[0, 0]
         return round(similarity, 4)
+
     
 def sidebar_filters(df):
     # Initialize the filtered dataframe with the original dataframe
@@ -58,8 +66,11 @@ def sidebar_filters(df):
 
         model_player_data = filtered_df.loc[filtered_df['Nombre'] == selected_player, data_columns].values[0]
 
+        mean_data = np.array(filtered_df[data_columns].mean())
+        std_data = np.array(filtered_df[data_columns].std())
+
         filtered_df['Similitud'] = filtered_df[data_columns].apply(
-            lambda row: apply_similarity_formula(model_player_data, row[data_columns].values),
+            lambda row: apply_similarity_formula(model_player_data, row[data_columns].values, mean_data,  std_data),
             axis=1
         )
 
